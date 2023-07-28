@@ -2,6 +2,9 @@ package net.citizensnpcs.api.util;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -76,26 +79,28 @@ public class SpigotUtil {
         return Duration.parse(raw);
     }
 
-    private static ChronoUnit toChronoUnit(TimeUnit tu) {
-        switch (tu) {
-            case NANOSECONDS:
-                return ChronoUnit.NANOS;
-            case MICROSECONDS:
-                return ChronoUnit.MICROS;
-            case MILLISECONDS:
-                return ChronoUnit.MILLIS;
-            case SECONDS:
-                return ChronoUnit.SECONDS;
-            case MINUTES:
-                return ChronoUnit.MINUTES;
-            case HOURS:
-                return ChronoUnit.HOURS;
-            case DAYS:
-                return ChronoUnit.DAYS;
-            default:
-                throw new AssertionError();
-        }
+    private static final Map<TimeUnit, ChronoUnit> TIME_UNIT_TO_CHRONO_UNIT_MAP;
+
+    static {
+        Map<TimeUnit, ChronoUnit> map = new HashMap<>();
+        map.put(TimeUnit.NANOSECONDS, ChronoUnit.NANOS);
+        map.put(TimeUnit.MICROSECONDS, ChronoUnit.MICROS);
+        map.put(TimeUnit.MILLISECONDS, ChronoUnit.MILLIS);
+        map.put(TimeUnit.SECONDS, ChronoUnit.SECONDS);
+        map.put(TimeUnit.MINUTES, ChronoUnit.MINUTES);
+        map.put(TimeUnit.HOURS, ChronoUnit.HOURS);
+        map.put(TimeUnit.DAYS, ChronoUnit.DAYS);
+        TIME_UNIT_TO_CHRONO_UNIT_MAP = Collections.unmodifiableMap(map);
     }
+
+    private static ChronoUnit toChronoUnit(TimeUnit tu) {
+        ChronoUnit chronoUnit = TIME_UNIT_TO_CHRONO_UNIT_MAP.get(tu);
+        if (chronoUnit == null) {
+            throw new AssertionError();
+        }
+        return chronoUnit;
+    }
+
 
     private static int[] BUKKIT_VERSION = null;
     private static Pattern DAY_MATCHER = Pattern.compile("(\\d+d)");

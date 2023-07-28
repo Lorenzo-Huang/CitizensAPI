@@ -218,11 +218,12 @@ public class CommandContext {
         return Integer.parseInt(args[index + 1]);
     }
 
-    public int getInteger(int index, int def) throws NumberFormatException {
+    public int getInteger(int index, int def) {
         if (index + 1 < args.length) {
             try {
                 return Integer.parseInt(args[index + 1]);
             } catch (NumberFormatException ex) {
+                System.out.println("Error parsing integer from args: " + ex.getMessage());
             }
         }
         return def;

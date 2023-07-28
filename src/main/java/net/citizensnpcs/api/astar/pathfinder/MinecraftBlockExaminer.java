@@ -27,10 +27,31 @@ import net.citizensnpcs.api.util.SpigotUtil;
 public class MinecraftBlockExaminer implements BlockExaminer {
     @Override
     public float getCost(BlockSource source, PathPoint point) {
+        Material above = getMaterialAbove(source, point);
+        Material below = getMaterialBelow(source, point);
+        Material in = getMaterialIn(source, point);
+
+        return calculateCost(above, in, below, source, point);
+    }
+
+    private Material getMaterialAbove(BlockSource source, PathPoint point) {
         Vector pos = point.getVector();
-        Material above = source.getMaterialAt(pos.getBlockX(), pos.getBlockY() + 1, pos.getBlockZ());
-        Material below = source.getMaterialAt(pos.getBlockX(), pos.getBlockY() - 1, pos.getBlockZ());
-        Material in = source.getMaterialAt(pos);
+        return source.getMaterialAt(pos.getBlockX(), pos.getBlockY() + 1, pos.getBlockZ());
+    }
+
+    private Material getMaterialBelow(BlockSource source, PathPoint point) {
+        Vector pos = point.getVector();
+        return source.getMaterialAt(pos.getBlockX(), pos.getBlockY() - 1, pos.getBlockZ());
+    }
+
+    private Material getMaterialIn(BlockSource source, PathPoint point) {
+        Vector pos = point.getVector();
+        return source.getMaterialAt(pos);
+    }
+
+    private float calculateCost(Material above, Material in, Material below, BlockSource source, PathPoint point) {
+        Vector pos = point.getVector();
+
         if (above == WEB || in == WEB)
             return 2F;
         if (below == Material.SOUL_SAND || below == Material.ICE)

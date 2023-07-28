@@ -72,6 +72,20 @@ public class InventoryMenu implements Listener, Runnable {
     private boolean transitioning;
     private Collection<InventoryView> views = Lists.newArrayList();
 
+    private static final int CHEST_MIN_SIZE = 9;
+    private static final int CHEST_MAX_SIZE = 54;
+    private static final int CHEST_DIMENSION = 9;
+
+    private static final int SMALL_CONTAINER_SIZE = 3;
+    private static final int MEDIUM_CONTAINER_SIZE = 27;
+    private static final int SINGLE_SLOT_SIZE = 1;
+    private static final int MID_CONTAINER_SIZE = 5;
+    private static final int DISPENSER_SIZE = 9;
+    private static final int DOUBLE_SLOT_SIZE = 2;
+    private static final int FOUR_SLOT_SIZE = 4;
+    private static final int PLAYER_INV_SIZE = 41;
+    private static final int LARGE_CONTAINER_SIZE = 10;
+
     public InventoryMenu(InventoryMenuInfo info, InventoryMenuPage instance) {
         transition(info, instance, Maps.newHashMap());
     }
@@ -145,12 +159,12 @@ public class InventoryMenu implements Listener, Runnable {
         switch (type) {
             case CHEST:
                 int size = dim[0] * dim[1];
-                if (size % 9 != 0) {
-                    size += 9 - (size % 9);
+                if (size % CHEST_MIN_SIZE != 0) {
+                    size += CHEST_MIN_SIZE - (size % CHEST_MIN_SIZE);
                 }
-                dim[0] = Math.min(54, size) / 9;
-                dim[1] = 9;
-                return Math.max(9, Math.min(54, size));
+                dim[0] = Math.min(CHEST_MAX_SIZE, size) / CHEST_DIMENSION;
+                dim[1] = CHEST_DIMENSION;
+                return Math.max(CHEST_MIN_SIZE, Math.min(CHEST_MAX_SIZE, size));
             case ANVIL:
             case BLAST_FURNACE:
             case CARTOGRAPHY:
@@ -159,46 +173,46 @@ public class InventoryMenu implements Listener, Runnable {
             case SMITHING:
             case SMOKER:
                 dim[0] = 0;
-                dim[1] = 3;
-                return 3;
+                dim[1] = SMALL_CONTAINER_SIZE;
+                return SMALL_CONTAINER_SIZE;
             case BARREL:
             case ENDER_CHEST:
             case SHULKER_BOX:
-                dim[0] = 3;
-                dim[1] = 9;
-                return 27;
+                dim[0] = CHEST_MIN_SIZE;
+                dim[1] = CHEST_DIMENSION;
+                return MEDIUM_CONTAINER_SIZE;
             case BEACON:
             case LECTERN:
                 dim[0] = 0;
-                dim[1] = 1;
-                return 1;
+                dim[1] = SINGLE_SLOT_SIZE;
+                return SINGLE_SLOT_SIZE;
             case BREWING:
             case HOPPER:
                 dim[0] = 0;
-                dim[1] = 5;
-                return 5;
+                dim[1] = MID_CONTAINER_SIZE;
+                return MID_CONTAINER_SIZE;
             case DISPENSER:
             case DROPPER:
                 dim[0] = 0;
-                dim[1] = 9;
-                return 9;
+                dim[1] = CHEST_DIMENSION;
+                return DISPENSER_SIZE;
             case ENCHANTING:
             case STONECUTTER:
                 dim[0] = 0;
-                dim[1] = 2;
-                return 2;
+                dim[1] = DOUBLE_SLOT_SIZE;
+                return DOUBLE_SLOT_SIZE;
             case LOOM:
                 dim[0] = 0;
-                dim[1] = 4;
-                return 4;
+                dim[1] = FOUR_SLOT_SIZE;
+                return FOUR_SLOT_SIZE;
             case PLAYER:
-                dim[0] = 4;
-                dim[1] = 9;
-                return 41;
+                dim[0] = FOUR_SLOT_SIZE;
+                dim[1] = CHEST_DIMENSION;
+                return PLAYER_INV_SIZE;
             case WORKBENCH:
                 dim[0] = 0;
-                dim[1] = 10;
-                return 10;
+                dim[1] = LARGE_CONTAINER_SIZE;
+                return LARGE_CONTAINER_SIZE;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -500,7 +514,9 @@ public class InventoryMenu implements Listener, Runnable {
         List<InventoryMenuTransition> transitions = Lists.newArrayList();
         InventoryMenuSlot[] slots = new InventoryMenuSlot[inventory.getSize()];
         page.patterns = new InventoryMenuPattern[info.patterns.length];
-        page.ctx = new MenuContext(this, slots, inventory, title, context);
+        page.ctx = new MenuContext.Builder(this, slots, inventory, title)
+                .data(context)
+                .build();
         for (int i = 0; i < info.slots.length; i++) {
             Bindable<MenuSlot> slotInfo = info.slots[i];
             int pos = posToIndex(dim, slotInfo.data.slot());

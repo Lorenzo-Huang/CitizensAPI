@@ -17,18 +17,39 @@ public class MenuContext implements SlotSource {
     private final InventoryMenuSlot[] slots;
     private String title;
 
-    public MenuContext(InventoryMenu menu, InventoryMenuSlot[] slots, Inventory inventory, String title) {
-        this(menu, slots, inventory, title, Collections.emptyMap());
+    MenuContext(Builder builder) {
+        this.inventory = builder.inventory;
+        this.title = builder.title;
+        this.slots = builder.slots;
+        this.menu = builder.menu;
+        this.data.putAll(builder.data);
     }
 
-    public MenuContext(InventoryMenu menu, InventoryMenuSlot[] slots, Inventory inventory, String title,
-            Map<String, Object> data) {
-        this.inventory = inventory;
-        this.title = title;
-        this.slots = slots;
-        this.menu = menu;
-        this.data.putAll(data);
+
+    public static class Builder {
+        private final Inventory inventory;
+        private final InventoryMenu menu;
+        private final InventoryMenuSlot[] slots;
+        private String title;
+        private Map<String, Object> data = Collections.emptyMap();
+
+        public Builder(InventoryMenu menu, InventoryMenuSlot[] slots, Inventory inventory, String title) {
+            this.inventory = inventory;
+            this.title = title;
+            this.slots = slots;
+            this.menu = menu;
+        }
+
+        public Builder data(Map<String, Object> data) {
+            this.data = data;
+            return this;
+        }
+
+        public MenuContext build() {
+            return new MenuContext(this);
+        }
     }
+
 
     public void clearSlots() {
         for (int i = 0; i < slots.length; i++) {
